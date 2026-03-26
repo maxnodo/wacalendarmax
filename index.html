@@ -189,6 +189,9 @@ body.light .bsave{color:#0f172a}
   <div class="brand">OtroNodo · WhatsApp</div>
   <div class="top-right">
     <div class="upd" id="upd"></div>
+    <button class="theme-btn" onclick="activarNotifs()" id="notif-btn" title="Activar notificaciones">
+      <span id="notif-icon">🔔</span>
+    </button>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">
       <span id="theme-icon">☀️</span>
       <span id="theme-label">Claro</span>
@@ -437,6 +440,62 @@ function showToast(msg,type){const t=document.getElementById('toast');t.textCont
 document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('ac-drop').style.display='none';});
 document.getElementById('mwrap').addEventListener('click',e=>{if(e.target===document.getElementById('mwrap'))closeModal();});
 
+// NOTIFICACIONES PUSH
+const VAPID_KEY = '8Iy9GDXU_qpaQ0m_Q0iUlsvUl2EUSBZfo9RfUyRX6nWfABgVWbEf82m0wBSFy_RPQzmlXzXV83jhcm8p8yzcPw';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return new Uint8Array([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function activarNotifs() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    showToast('Tu browser no soporta notificaciones', 'err'); return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') {
+    showToast('Permiso denegado', 'err'); return;
+  }
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_KEY)
+      });
+    }
+    const j = sub.toJSON();
+    const { error } = await db.from('push_subscriptions').upsert({
+      endpoint: j.endpoint,
+      p256dh: j.keys.p256dh,
+      auth: j.keys.auth,
+      user_agent: navigator.userAgent.slice(0, 200),
+      activo: true
+    }, { onConflict: 'endpoint' });
+    if (error) throw error;
+    document.getElementById('notif-icon').textContent = '🔔';
+    document.getElementById('notif-btn').style.borderColor = 'var(--teal)';
+    showToast('Notificaciones activadas!', 'ok');
+  } catch(e) {
+    showToast('Error: ' + e.message, 'err');
+  }
+}
+
+async function verificarNotifs() {
+  if (!('serviceWorker' in navigator)) return;
+  const reg = await navigator.serviceWorker.getRegistration('/sw.js').catch(() => null);
+  if (!reg) return;
+  const sub = await reg.pushManager.getSubscription().catch(() => null);
+  if (sub) {
+    document.getElementById('notif-icon').textContent = '🔔';
+    document.getElementById('notif-btn').style.borderColor = 'var(--teal)';
+  }
+}
+
 // TEMA
 function setTheme(light){
   document.body.classList.toggle('light',light);
@@ -450,6 +509,7 @@ setTheme(localStorage.getItem('theme')==='light');
 
 load();
 setInterval(load,60000);
+verificarNotifs();
 </script>
 </body>
 </html>
