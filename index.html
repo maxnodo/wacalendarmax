@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- v2026-03-26 21:05 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -184,9 +183,10 @@ function renderCal(){
   document.getElementById('mlbl').textContent=MN[cmo]+' '+cy;
   document.getElementById('dlbls').innerHTML=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>'<div class="dlbl">'+d+'</div>').join('');
   const f=new Date(cy,cmo,1).getDay(),off=f===0?6:f-1,dim=new Date(cy,cmo+1,0).getDate(),td=new Date();
+  const esHoy=(y,m,d)=>td.getFullYear()===y&&td.getMonth()===m&&td.getDate()===d&&cy===y&&cmo===m;
   let h=Array(off).fill('<div class="dc empty"></div>').join('');
   for(let d=1;d<=dim;d++){
-    const it=td.getFullYear()===cy&&td.getMonth()===cmo&&td.getDate()===d;
+    const it=esHoy(cy,cmo,d);
     const all=fcd(cy,cmo,d);
     const sh=all.slice(0,3),ex=all.length-3;
     let dots=sh.map(x=>{
