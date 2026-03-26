@@ -441,7 +441,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.
 document.getElementById('mwrap').addEventListener('click',e=>{if(e.target===document.getElementById('mwrap'))closeModal();});
 
 // NOTIFICACIONES PUSH
-const VAPID_KEY = '8Iy9GDXU_qpaQ0m_Q0iUlsvUl2EUSBZfo9RfUyRX6nWfABgVWbEf82m0wBSFy_RPQzmlXzXV83jhcm8p8yzcPw';
+const VAPID_KEY = 'BG4ENwYYyhvwV2Gy7DJQr16aYLmBvlzRxoxez1lbxO0Jd7_JLNx1aCxmRJ2eLCEZWMhR3ZTkHZ7UwXIOyfRUP1U';
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -451,16 +451,25 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 async function activarNotifs() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    showToast('Tu browser no soporta notificaciones', 'err'); return;
+  if (!('serviceWorker' in navigator)) {
+    showToast('Tu browser no soporta Service Workers', 'err'); return;
+  }
+  if (!('PushManager' in window)) {
+    showToast('Tu browser no soporta Push notifications', 'err'); return;
   }
   const perm = await Notification.requestPermission();
   if (perm !== 'granted') {
-    showToast('Permiso denegado', 'err'); return;
+    showToast('Permiso denegado por el usuario', 'err'); return;
   }
   try {
-    const reg = await navigator.serviceWorker.register('/sw.js');
-    await navigator.serviceWorker.ready;
+    // Registrar SW
+    const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    // Esperar que esté listo
+    const sw = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('SW timeout')), 5000))
+    ]);
+    // Suscribir al push
     let sub = await reg.pushManager.getSubscription();
     if (!sub) {
       sub = await reg.pushManager.subscribe({
@@ -469,6 +478,8 @@ async function activarNotifs() {
       });
     }
     const j = sub.toJSON();
+    if (!j.keys) throw new Error('No se obtuvieron las claves de suscripción');
+    // Guardar en Supabase
     const { error } = await db.from('push_subscriptions').upsert({
       endpoint: j.endpoint,
       p256dh: j.keys.p256dh,
@@ -476,11 +487,12 @@ async function activarNotifs() {
       user_agent: navigator.userAgent.slice(0, 200),
       activo: true
     }, { onConflict: 'endpoint' });
-    if (error) throw error;
+    if (error) throw new Error('Supabase: ' + error.message);
     document.getElementById('notif-icon').textContent = '🔔';
     document.getElementById('notif-btn').style.borderColor = 'var(--teal)';
     showToast('Notificaciones activadas!', 'ok');
   } catch(e) {
+    console.error('Push error:', e);
     showToast('Error: ' + e.message, 'err');
   }
 }
