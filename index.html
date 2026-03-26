@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Calendario WA">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Calendario WhatsApp — OtroNodo</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh}
+:root{--card:#fff;--surf:#f8fafc;--brd:rgba(0,0,0,0.08);--brh:rgba(0,0,0,0.18);--or:#ea580c;--gr:#16a34a;--am:#d97706;--pu:#7c3aed;--bl:#2563eb}
+.top{background:#fff;border-bottom:1px solid var(--brd);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;position:sticky;top:0;z-index:99}
+.brand{font-size:15px;font-weight:700;color:var(--or)}
+.upd{font-size:11px;color:#94a3b8}
+.main{max-width:960px;margin:0 auto;padding:1rem}
+.cal{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-bottom:1.25rem}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.ct{font-size:15px;font-weight:600;color:#0f172a}
+.cbtns{display:flex;gap:6px;align-items:center}
+.nav{background:var(--surf);border:1px solid var(--brd);border-radius:6px;color:#0f172a;font-size:18px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.nav:hover{border-color:var(--brh)}
+.btn-new{background:var(--or);border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;padding:6px 14px;cursor:pointer}
+.leg{display:flex;gap:12px;margin-bottom:.75rem;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:#64748b}
+.ld{width:8px;height:8px;border-radius:2px}
+.g7{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.dlbl{text-align:center;font-size:10px;color:#94a3b8;font-weight:500;padding:3px 0 8px;text-transform:uppercase}
+.dc{min-height:72px;background:#fff;border:1px solid var(--brd);border-radius:6px;padding:5px;transition:border-color .1s}
+.dc.hm{cursor:pointer}.dc.hm:hover{border-color:var(--brh)}
+.dc.empty{background:transparent;border-color:transparent}
+.dc.today{border-color:var(--or)!important}
+.dn{font-size:11px;font-weight:600;color:#94a3b8;margin-bottom:3px}
+.dc.today .dn{color:var(--or)}
+.dot{font-size:9px;border-radius:3px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.dot.e{background:#dcfce7;color:#15803d}
+.dot.p{background:#fef9c3;color:#a16207}
+.dot.t{background:#ede9fe;color:#6d28d9}
+.more{font-size:9px;color:#94a3b8}
+.panel{background:var(--card);border:1px solid var(--brd);border-radius:10px;overflow:hidden;margin-bottom:1.25rem}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:1px solid var(--brd)}
+.pt{font-size:13px;font-weight:600;color:#0f172a}
+.pc{background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;line-height:1}
+.mr{display:flex;gap:10px;padding:.75rem 1rem;border-bottom:1px solid var(--brd);align-items:flex-start}
+.mr:last-child{border-bottom:none}
+.av{width:34px;height:34px;border-radius:50%;background:#dbeafe;border:1px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--bl);flex-shrink:0}
+.av.t{background:#ede9fe;border-color:#ddd6fe;color:var(--pu)}
+.mb{flex:1;min-width:0}
+.mt{display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap}
+.mn{font-size:12px;font-weight:600;color:#0f172a}
+.badge{font-size:9px;padding:2px 7px;border-radius:3px;font-weight:500}
+.badge.e{background:#dcfce7;color:#15803d}
+.badge.p{background:#fef9c3;color:#a16207}
+.badge.t{background:#ede9fe;color:#6d28d9}
+.mm{font-size:10px;color:#64748b;margin-bottom:3px}
+.mx{font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mxf{font-size:11px;color:#64748b;white-space:pre-wrap;line-height:1.5;display:none}
+.mas{display:flex;gap:6px;margin-top:4px}
+.ba{font-size:10px;padding:3px 9px;border-radius:4px;border:1px solid var(--brd);background:none;color:#64748b;cursor:pointer}
+.ba:hover{border-color:var(--brh);color:#0f172a}
+.modal-wrap{display:none;align-items:flex-start;justify-content:center;padding:2rem 1rem;background:rgba(0,0,0,.4);position:fixed;inset:0;z-index:200;overflow-y:auto}
+.modal{background:#fff;border:1px solid var(--brd);border-radius:10px;width:100%;max-width:460px;padding:1.5rem}
+.modal h3{font-size:14px;font-weight:600;margin-bottom:1rem;color:#0f172a}
+.fr{margin-bottom:10px;position:relative}
+.fr label{display:block;font-size:11px;color:#64748b;margin-bottom:4px}
+.fr input,.fr textarea{width:100%;background:#f8fafc;border:1px solid var(--brd);border-radius:6px;color:#0f172a;font-size:13px;padding:7px 11px;outline:none;font-family:inherit}
+.fr input:focus,.fr textarea:focus{border-color:var(--or)}
+.fr textarea{resize:vertical;min-height:75px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mact{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+.bcanc{background:none;border:1px solid var(--brd);border-radius:6px;color:#64748b;font-size:12px;padding:7px 16px;cursor:pointer}
+.bsave{background:var(--or);border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;padding:7px 18px;cursor:pointer}
+.bsave:disabled{opacity:.5;cursor:not-allowed}
+.toast{position:fixed;bottom:1.25rem;right:1.25rem;background:#fff;border:1px solid var(--brd);border-radius:6px;padding:11px 16px;font-size:13px;z-index:300;display:none;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.toast.ok{border-color:#86efac;color:#15803d}
+.toast.err{border-color:#fca5a5;color:#dc2626}
+/* Autocomplete */
+.ac-wrap{position:relative}
+.ac-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--brd);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:100;max-height:200px;overflow-y:auto;display:none;margin-top:2px}
+.ac-item{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;transition:background .1s}
+.ac-item:hover{background:#f8fafc}
+.ac-av{width:30px;height:30px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--bl);flex-shrink:0;overflow:hidden}
+.ac-av img{width:100%;height:100%;object-fit:cover}
+.ac-info{flex:1;min-width:0}
+.ac-name{font-size:12px;font-weight:500;color:#0f172a}
+.ac-num{font-size:10px;color:#64748b}
+.ac-loading{padding:10px 12px;font-size:12px;color:#94a3b8;text-align:center}
+.fn-selected{background:#f0fdf4!important;border-color:#86efac!important}
+@media(max-width:600px){
+  .dc{min-height:62px}
+  .fg{grid-template-columns:1fr}
+  .dot{font-size:0;padding:3px;width:8px;height:8px;border-radius:50%;margin-bottom:2px;display:inline-block;margin-right:2px;overflow:hidden}
+  .dn{font-size:12px}
+  .more{font-size:9px}
+  .dlbl{font-size:9px}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand">OtroNodo · WhatsApp</div>
+  <div class="upd" id="upd"></div>
+</div>
+<div class="main">
+  <div class="cal">
+    <div class="ch">
+      <div class="ct" id="mlbl"></div>
+      <div class="cbtns">
+        <button class="nav" onclick="cm(-1)">&#8249;</button>
+        <button class="nav" onclick="cm(1)">&#8250;</button>
+        <button class="btn-new" onclick="openModal()">+ Nuevo</button>
+      </div>
+    </div>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:#dcfce7;border:1px solid #86efac"></div>Enviado</div>
+      <div class="li"><div class="ld" style="background:#fef9c3;border:1px solid #fde047"></div>Pendiente</div>
+      <div class="li"><div class="ld" style="background:#ede9fe;border:1px solid #c4b5fd"></div>Tarea</div>
+    </div>
+    <div class="g7" id="dlbls"></div>
+    <div class="g7" id="cgrid"></div>
+  </div>
+  <div id="panel" style="display:none" class="panel"></div>
+</div>
+
+<div class="modal-wrap" id="mwrap">
+  <div class="modal">
+    <h3>Nuevo mensaje programado</h3>
+    <div class="fr">
+      <label>Destinatario</label>
+      <div class="ac-wrap">
+        <input id="fn" placeholder="Escribí el nombre..." autocomplete="off" oninput="buscarContacto(this.value)">
+        <div class="ac-drop" id="ac-drop"></div>
+      </div>
+    </div>
+    <div class="fr" id="fnum-wrap">
+      <label style="display:flex;align-items:center;justify-content:space-between">
+        <span>Número</span>
+        <button type="button" id="btn-manual" onclick="activarManual()" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--brd);background:none;color:#64748b;cursor:pointer">Ingresar manualmente</button>
+      </label>
+      <input id="fnum" placeholder="Se completa al elegir contacto" readonly style="background:#f1f5f9;color:#64748b">
+    </div>
+    <div class="fr"><label>Mensaje</label><textarea id="fmsg" placeholder="Escribí el mensaje..."></textarea></div>
+    <div class="fr"><label>Fecha y hora (Madrid)</label><input type="datetime-local" id="fdt"></div>
+    <div class="mact">
+      <button class="bcanc" onclick="closeModal()">Cancelar</button>
+      <button class="bsave" id="bsv" onclick="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://azmurvcoiqbktxmevsga.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bXVydmNvaXFia3R4bWV2c2dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUxMzk4MTUsImV4cCI6MjA2MDcxNTgxNX0.ZOK2jmI2v0o16A_qdxe8iy5rn5xATkOboGSC6r6zU2Y';
+const db=supabase.createClient(SB_URL,SB_KEY);
+
+let msgs=[],tareas=[],calData=[],cy=new Date().getFullYear(),cmo=new Date().getMonth(),sel=null,exp=new Set();
+let acTimer=null;
+
+async function load(){
+  const [r1,r2,rv]=await Promise.all([
+    db.from('mensajes_programados').select('id,destinatario_nombre,destinatario_numero,mensaje,proximo_envio,activo').order('proximo_envio'),
+    db.from('tareas_dinamicas').select('id,nombre,descripcion,destinatario_nombre,destinatario_numero,proximo_envio,activo').order('proximo_envio'),
+    db.from('v_calendario').select('*')
+  ]);
+  if(r1.data) msgs=r1.data;
+  if(r2.data) tareas=r2.data;
+  if(rv.data) calData=rv.data;
+  document.getElementById('upd').textContent=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+  renderCal();
+  if(sel) sd(sel);
+}
+
+function fcd(y,m,d){return calData.filter(x=>x.y===y&&x.m===m&&x.d===d);}
+function fd(y,m,d){return msgs.filter(x=>{const dt=new Date(x.proximo_envio);return dt.getUTCFullYear()===y&&dt.getUTCMonth()===m&&dt.getUTCDate()===d;});}
+function fdt(y,m,d){return tareas.filter(x=>{const dt=new Date(x.proximo_envio);return dt.getUTCFullYear()===y&&dt.getUTCMonth()===m&&dt.getUTCDate()===d;});}
+
+function renderCal(){
+  const MN=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('mlbl').textContent=MN[cmo]+' '+cy;
+  document.getElementById('dlbls').innerHTML=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>'<div class="dlbl">'+d+'</div>').join('');
+  const f=new Date(cy,cmo,1).getDay(),off=f===0?6:f-1,dim=new Date(cy,cmo+1,0).getDate(),td=new Date();
+  let h=Array(off).fill('<div class="dc empty"></div>').join('');
+  for(let d=1;d<=dim;d++){
+    const it=td.getFullYear()===cy&&td.getMonth()===cmo&&td.getDate()===d;
+    const all=fcd(cy,cmo,d);
+    const sh=all.slice(0,3),ex=all.length-3;
+    let dots=sh.map(x=>{
+      const cls=x.tipo==='tarea'?'t':x.a?'p':'e';
+      return '<span class="dot '+cls+'">'+x.n.split(' ')[0]+'</span>';
+    }).join('');
+    if(ex>0) dots+='<div class="more">+'+ex+'</div>';
+    h+='<div class="dc'+(it?' today':'')+(all.length?' hm':'')+'" '+(all.length?'onclick="sd('+d+')"':'')+'>'+
+       '<div class="dn">'+d+'</div>'+dots+'</div>';
+  }
+  document.getElementById('cgrid').innerHTML=h;
+}
+
+function sd(d){
+  sel=d;
+  const dm=fd(cy,cmo,d),dta=fdt(cy,cmo,d);
+  const MS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const total=dm.length+dta.length;
+  const mrows=dm.map(m=>{
+    const h=new Date(m.proximo_envio).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Madrid'});
+    const ini=m.destinatario_nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const isE=exp.has(m.id);
+    return '<div class="mr"><div class="av">'+ini+'</div><div class="mb">'+
+      '<div class="mt"><span class="mn">'+m.destinatario_nombre+'</span><span class="badge '+(m.activo?'p':'e')+'">'+(m.activo?'pendiente':'enviado')+'</span></div>'+
+      '<div class="mm">'+h+' Madrid · '+m.destinatario_numero+'</div>'+
+      '<div class="mx" id="px-'+m.id+'" style="'+(isE?'display:none':'')+'">'+m.mensaje.replace(/\n/g,' ')+'</div>'+
+      '<div class="mxf" id="fx-'+m.id+'" style="'+(isE?'display:block':'display:none')+'">'+m.mensaje+'</div>'+
+      '<div class="mas"><button class="ba" onclick="te(\''+m.id+'\')">'+(isE?'Ver menos':'Ver más')+'</button></div>'+
+      '</div></div>';
+  }).join('');
+  const trows=dta.map(t=>{
+    const h=new Date(t.proximo_envio).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Madrid'});
+    const ini=(t.destinatario_nombre||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    return '<div class="mr"><div class="av t">'+ini+'</div><div class="mb">'+
+      '<div class="mt"><span class="mn">'+t.destinatario_nombre+'</span><span class="badge t">tarea</span></div>'+
+      '<div class="mm">'+h+' Madrid · '+(t.nombre||'')+'</div>'+
+      '<div class="mx">'+(t.descripcion||t.nombre||'').replace(/\n/g,' ')+'</div>'+
+      '</div></div>';
+  }).join('');
+  const panel=document.getElementById('panel');
+  panel.style.display='block';
+  panel.innerHTML='<div class="ph"><div class="pt">'+d+' '+MS[cmo]+' '+cy+' · '+total+' elemento'+(total!==1?'s':'')+'</div><button class="pc" onclick="cp()">×</button></div>'+mrows+trows;
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function te(id){exp.has(id)?exp.delete(id):exp.add(id);if(sel)sd(sel);}
+function cp(){sel=null;const p=document.getElementById('panel');p.style.display='none';p.innerHTML='';}
+function cm(dir){cmo+=dir;if(cmo>11){cmo=0;cy++;}if(cmo<0){cmo=11;cy--;}cp();renderCal();}
+
+/* AUTOCOMPLETE */
+async function buscarContacto(q){
+  const drop=document.getElementById('ac-drop');
+  document.getElementById('fnum').value='';
+  document.getElementById('fn').classList.remove('fn-selected');
+  if(q.length<2){drop.style.display='none';return;}
+  clearTimeout(acTimer);
+  acTimer=setTimeout(async()=>{
+    drop.style.display='block';
+    drop.innerHTML='<div class="ac-loading">Buscando...</div>';
+    try{
+      const res=await fetch(SB_URL+'/functions/v1/search-contacts',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY},
+        body:JSON.stringify({query:q})
+      });
+      const data=await res.json();
+      if(!data.length){
+        drop.innerHTML='<div class="ac-loading">Sin resultados</div>';
+        return;
+      }
+      drop.innerHTML=data.map(c=>{
+        const ini=c.nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+        const foto=c.foto?'<img src="'+c.foto+'" onerror="this.style.display=\'none\'">':'';
+        return '<div class="ac-item" onclick="seleccionarContacto(\''+c.nombre.replace(/'/g,"\\'")+"','"+c.numero+"')\">" +
+          '<div class="ac-av">'+foto+'<span style="'+(c.foto?'display:none':'')+'">'+ini+'</span></div>'+
+          '<div class="ac-info"><div class="ac-name">'+c.nombre+'</div><div class="ac-num">+'+c.numero+'</div></div>'+
+          '</div>';
+      }).join('');
+    }catch(e){
+      drop.innerHTML='<div class="ac-loading">Error al buscar</div>';
+    }
+  },300);
+}
+
+function seleccionarContacto(nombre,numero){
+  document.getElementById('fn').value=nombre;
+  document.getElementById('fnum').value=numero;
+  document.getElementById('fn').classList.add('fn-selected');
+  document.getElementById('ac-drop').style.display='none';
+  // Volver al modo solo lectura si estaba manual
+  const fnum=document.getElementById('fnum');
+  fnum.readOnly=false;
+  fnum.style.background='';fnum.style.color='';
+}
+
+function activarManual(){
+  // Desbloquear ambos campos
+  const fn=document.getElementById('fn');
+  const fnum=document.getElementById('fnum');
+  fn.oninput=null;
+  fn.placeholder='Escribí el nombre completo';
+  fn.classList.remove('fn-selected');
+  document.getElementById('ac-drop').style.display='none';
+  fnum.readOnly=false;
+  fnum.style.background='';
+  fnum.style.color='';
+  fnum.placeholder='Ej: 5493434512214';
+  fnum.value='';
+  fnum.oninput=function(){this.value=this.value.replace(/[^0-9]/g,'');};
+  document.getElementById('btn-manual').style.display='none';
+  // Mostrar botón para volver al buscador
+  const label=document.querySelector("#fnum-wrap label");
+  const btnVolver=document.createElement('button');
+  btnVolver.type='button';
+  btnVolver.textContent='Usar buscador';
+  btnVolver.style='font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--brd);background:none;color:#2563eb;cursor:pointer';
+  btnVolver.onclick=()=>resetFormulario();
+  label.appendChild(btnVolver);
+}
+
+function resetFormulario(){
+  const fn=document.getElementById('fn');
+  fn.oninput=function(){buscarContacto(this.value);};
+  fn.placeholder='Escribí el nombre...';
+  fn.value='';fn.classList.remove('fn-selected');
+  const fnum=document.getElementById('fnum');
+  fnum.readOnly=true;
+  fnum.oninput=null;
+  fnum.style.background='#f1f5f9';fnum.style.color='#64748b';
+  fnum.placeholder='Se completa al elegir contacto';
+  fnum.value='';
+  document.getElementById('btn-manual').style.display='';
+  // Remover botón volver
+  const btnVolver=document.querySelector("#fnum-wrap label button:last-child");
+  if(btnVolver && btnVolver.textContent==='Usar buscador') btnVolver.remove();
+}
+
+function openModal(){
+  const now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  document.getElementById('fdt').value=now.toISOString().slice(0,16);
+  resetFormulario();
+  document.getElementById('fmsg').value='';
+  document.getElementById('mwrap').style.display='flex';
+}
+function closeModal(){
+  document.getElementById('mwrap').style.display='none';
+  document.getElementById('ac-drop').style.display='none';
+}
+
+async function guardar(){
+  const n=document.getElementById('fn').value.trim();
+  const num=document.getElementById('fnum').value.trim().replace(/\D/g,'');
+  const msg=document.getElementById('fmsg').value.trim();
+  const dt=document.getElementById('fdt').value;
+  if(!n||!num||!msg||!dt){showToast('Completá todos los campos','err');return;}
+  const btn=document.getElementById('bsv');btn.disabled=true;btn.textContent='Guardando...';
+  const {error}=await db.from('mensajes_programados').insert({
+    destinatario_nombre:n,destinatario_numero:num,mensaje:msg,
+    cron_expresion:'* * * * *',una_sola_vez:true,
+    proximo_envio:new Date(dt).toISOString(),activo:true
+  });
+  btn.disabled=false;btn.textContent='Guardar';
+  if(error){showToast('Error: '+error.message,'err');return;}
+  showToast('Mensaje programado!','ok');closeModal();await load();
+}
+
+function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.ac-wrap')) document.getElementById('ac-drop').style.display='none';
+});
+document.getElementById('mwrap').addEventListener('click',e=>{
+  if(e.target===document.getElementById('mwrap'))closeModal();
+});
+
+load();
+setInterval(load,60000);
+</script>
+</body>
+</html>
