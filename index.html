@@ -378,19 +378,26 @@ document.getElementById('mwrap').addEventListener('click',e=>{
 load();
 setInterval(load,60000);
 
-function toggleTheme(){
-  const isLight = document.body.classList.toggle('light');
-  document.getElementById('theme-icon').textContent = isLight ? '🌙' : '☀️';
-  document.getElementById('theme-label').textContent = isLight ? 'Oscuro' : 'Claro';
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+function setTheme(light){
+  if(light){
+    document.body.classList.add('light');
+    document.getElementById('theme-icon').textContent = '🌙';
+    document.getElementById('theme-label').textContent = 'Oscuro';
+  } else {
+    document.body.classList.remove('light');
+    document.getElementById('theme-icon').textContent = '☀️';
+    document.getElementById('theme-label').textContent = 'Claro';
+  }
+  localStorage.setItem('theme', light ? 'light' : 'dark');
 }
 
-// Restaurar tema guardado
-if(localStorage.getItem('theme') === 'light'){
-  document.body.classList.add('light');
-  document.getElementById('theme-icon').textContent = '🌙';
-  document.getElementById('theme-label').textContent = 'Oscuro';
+function toggleTheme(){
+  setTheme(!document.body.classList.contains('light'));
 }
+
+// Restaurar tema guardado — por defecto oscuro
+const savedTheme = localStorage.getItem('theme');
+setTheme(savedTheme === 'light');
 </script>
 </body>
 </html>
