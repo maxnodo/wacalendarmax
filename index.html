@@ -33,6 +33,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dc.hm{cursor:pointer}.dc.hm:hover{border-color:var(--brh)}
 .dc.empty{background:transparent;border-color:transparent}
 .dc.today{border-color:var(--or)!important}
+.dc.selected{background:#fff7ed;border-color:var(--or);border-width:2px}
 .dn{font-size:11px;font-weight:600;color:#94a3b8;margin-bottom:3px}
 .dc.today .dn{color:var(--or)}
 .dot{font-size:9px;border-radius:3px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
@@ -202,6 +203,12 @@ function renderCal(){
 
 function sd(d){
   sel=d;
+  document.querySelectorAll('.dc.selected').forEach(el=>el.classList.remove('selected'));
+  const cells=document.querySelectorAll('#cgrid .dc');
+  const firstDay=new Date(cy,cmo,1).getDay();
+  const off=firstDay===0?6:firstDay-1;
+  const idx=d+off-1;
+  if(cells[idx]) cells[idx].classList.add('selected');
   const dm=fd(cy,cmo,d),dta=fdt(cy,cmo,d);
   const MS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   const total=dm.length+dta.length;
@@ -234,7 +241,7 @@ function sd(d){
 
 function te(id){exp.has(id)?exp.delete(id):exp.add(id);if(sel)sd(sel);}
 function cp(){sel=null;const p=document.getElementById('panel');p.style.display='none';p.innerHTML='';}
-function cm(dir){cmo+=dir;if(cmo>11){cmo=0;cy++;}if(cmo<0){cmo=11;cy--;}cp();renderCal();}
+function cm(dir){cmo+=dir;if(cmo>11){cmo=0;cy++;}if(cmo<0){cmo=11;cy--;}sel=null;cp();renderCal();}
 
 /* AUTOCOMPLETE */
 async function buscarContacto(q){
