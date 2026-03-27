@@ -397,22 +397,33 @@ function renderTimeline(dateObj){
     return;
   }
 
-  // Calcular rango de horas
+  // Solo horas con mensajes + hora actual si es hoy
   var now=new Date();
   var isToday=now.getFullYear()===y&&now.getMonth()===m&&now.getDate()===d;
   var msgsByHour={};
   all.forEach(function(x){
-    var h=new Date(x.proximo_envio).toLocaleString('es',{hour:'numeric',timeZone:'Europe/Madrid'}).replace(/[^0-9]/g,'');
-    var hNum=parseInt(h)||0;
+    var dt=new Date(x.proximo_envio);
+    var hStr=dt.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Madrid'});
+    var hNum=parseInt(hStr.split(':')[0]);
     if(!msgsByHour[hNum]) msgsByHour[hNum]=[];
     msgsByHour[hNum].push(x);
   });
-  var hours=Object.keys(msgsByHour).map(Number).sort(function(a,b){return a-b;});
-  var minH=Math.max(0,hours[0]-1),maxH=Math.min(23,hours[hours.length-1]+1);
-  if(isToday){minH=Math.min(minH,now.getHours());maxH=Math.max(maxH,now.getHours()+1);}
+  var hoursWithMsgs=Object.keys(msgsByHour).map(Number).sort(function(a,b){return a-b;});
+  var slotsToShow=hoursWithMsgs.slice();
+  if(isToday && slotsToShow.indexOf(now.getHours())<0) slotsToShow.push(now.getHours());
+  slotsToShow.sort(function(a,b){return a-b;});
 
   var slots='';
-  for(var h=minH;h<=maxH;h++){
+  for(var si=0;si<slotsToShow.length;si++){
+    var h=slotsToShow[si];
+    if(si>0 && h-slotsToShow[si-1]>1){
+      var gap=h-slotsToShow[si-1]-1;
+      slots+='<div class="tl-gap">'
+        +'<div class="tl-gap-line"></div>'
+        +'<div class="tl-gap-label">+'+gap+'h</div>'
+        +'<div class="tl-gap-line"></div>'
+        +'</div>';
+    }
     var hLabel=(h<10?'0':'')+h+':00';
     var hasMsg=!!msgsByHour[h];
     var isNow=isToday&&now.getHours()===h;
