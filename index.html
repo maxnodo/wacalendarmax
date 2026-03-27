@@ -552,9 +552,16 @@ function setTab(btn,tab){
 }
 
 async function toggleFav(id,actual,e){
-  e.stopPropagation();
+  if(e) e.stopPropagation();
   await db.from('contactos').update({favorito:!actual}).eq('id',id);
   await loadContactos();
+}
+
+function toggleFavBtn(btn,e){
+  e.stopPropagation();
+  var id=btn.getAttribute('data-id');
+  var actual=btn.getAttribute('data-fav')==='true';
+  toggleFav(id,actual,null);
 }
 
 function openAgenda(){
