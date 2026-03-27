@@ -509,6 +509,9 @@ async function eliminar(id,nombre,e){
 async function loadContactos(){
   var res=await db.from('contactos').select('*').order('nombre');
   if(res.data) contactos=res.data;
+  // Reset completo del DOM de favoritos antes de re-render
+  var fs=document.getElementById('ag-favs-section');
+  if(fs) fs.style.display='none';
   renderAgenda();
 }
 
@@ -721,8 +724,15 @@ document.addEventListener('click',function(e){
   if(btn){
     e.stopPropagation();
     var id=btn.getAttribute('data-id');
-    var fav=btn.getAttribute('data-fav')==='true';
-    toggleFav(id,fav,null);
+    var favStr=btn.getAttribute('data-fav');
+    var fav=(favStr==='true'||favStr===true);
+    // Actualizar UI inmediatamente sin esperar Supabase
+    btn.textContent=fav?'☆':'★';
+    btn.setAttribute('data-fav',String(!fav));
+    // Luego guardar en Supabase y recargar
+    db.from('contactos').update({favorito:!fav}).eq('id',id).then(function(){
+      loadContactos();
+    });
   }
 });
 
