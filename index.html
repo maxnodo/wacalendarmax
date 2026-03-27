@@ -57,37 +57,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .main{max-width:480px;margin:0 auto;padding:1.25rem 1rem}
 
 /* CALENDARIO */
-.cal{background:var(--card);border-radius:20px;padding:1.25rem;margin-bottom:1rem}
-
-/* Header mes */
-.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
-.cal-month{font-size:18px;font-weight:700;color:var(--text)}
-.cal-nav{display:flex;gap:8px}
-.nav-btn{width:36px;height:36px;border-radius:10px;background:var(--surf);border:1px solid var(--brd);color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+/* WEEK STRIP CALENDAR */
+.cal{background:var(--card);border-radius:20px;padding:1rem 1.25rem;margin-bottom:1rem}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.cal-month{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;cursor:pointer}
+.cal-month-arrow{font-size:11px;color:var(--muted);transition:transform .2s}
+.cal-nav{display:flex;gap:6px;align-items:center}
+.nav-btn{width:32px;height:32px;border-radius:10px;background:var(--surf);border:1px solid var(--brd);color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
 .nav-btn:hover{border-color:var(--teal);color:var(--teal)}
+.today-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;background:var(--teal-bg);border:1px solid rgba(45,212,176,0.2);color:var(--teal);cursor:pointer}
 
-/* Días de semana */
-.weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:.5rem}
-.wday{text-align:center;font-size:12px;font-weight:600;color:var(--teal);padding:4px 0;text-transform:uppercase;letter-spacing:.03em}
-body.light .wday{color:var(--muted)}
+/* Week strip */
+.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.ws-day{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 2px;border-radius:14px;cursor:pointer;transition:all .15s}
+.ws-day:hover{background:var(--teal-bg)}
+.ws-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.ws-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:var(--muted);transition:all .15s}
+.ws-day.has-events .ws-num{color:var(--text);font-weight:600}
+.ws-day.today .ws-num{color:var(--teal);font-weight:700;border:2px solid var(--teal)}
+.ws-day.selected .ws-num{background:var(--sel-bg);color:#fff!important;font-weight:700;border:none}
+body.light .ws-day.selected .ws-num{color:#0f172a!important}
 
-/* Grid de días */
-.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.day{position:relative;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:12px;cursor:pointer;transition:all .15s;font-size:15px;font-weight:500;color:var(--muted)}
-.day.active{color:var(--text)}
-.day.active:hover{background:var(--teal-bg)}
-.day.empty{pointer-events:none}
-.day.today{color:var(--teal);font-weight:700}
-.day.today::before{content:'';position:absolute;inset:0;border-radius:12px;border:2px solid var(--teal)}
-.day.selected{background:var(--sel-bg)!important;color:#fff!important;font-weight:700;border-radius:12px}
-.day.selected .dot-row .dot{background:rgba(255,255,255,0.6)!important}
-
-/* Dot indicator */
-.dot-row{position:absolute;bottom:4px;left:0;right:0;display:flex;justify-content:center;gap:3px}
-.dot{width:5px;height:5px;border-radius:50%}
+/* Dots en week strip */
+.ws-dots{display:flex;gap:2px;justify-content:center;height:6px;align-items:center}
+.dot{width:4px;height:4px;border-radius:50%}
 .dot.e{background:var(--teal)}
 .dot.p{background:var(--amber)}
 .dot.t{background:var(--purple)}
+
+/* Month picker dropdown */
+.month-picker{display:none;position:absolute;top:52px;left:0;right:0;background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:.75rem;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.month-picker.open{display:block}
+.mp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mp-month{padding:8px 4px;text-align:center;font-size:12px;font-weight:500;color:var(--muted);border-radius:8px;cursor:pointer;transition:all .15s}
+.mp-month:hover{background:var(--teal-bg);color:var(--teal)}
+.mp-month.active{background:var(--teal);color:#fff;font-weight:700}
+body.light .mp-month.active{color:#0f172a}
+.mp-year{display:flex;align-items:center;justify-content:space-between;margin-bottom:.625rem}
+.mp-yr{font-size:14px;font-weight:700;color:var(--text)}
+.mp-yr-btn{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px}
+.mp-yr-btn:hover{color:var(--text)}
 
 /* PANEL detalle */
 .panel{background:var(--card);border-radius:20px;overflow:hidden;margin-bottom:1rem}
@@ -210,16 +219,27 @@ body.light .btn-save{color:#0f172a}
 </div>
 
 <div class="main">
-  <div class="cal">
+  <div class="cal" style="position:relative">
     <div class="cal-header">
-      <div class="cal-month" id="mlbl"></div>
+      <div class="cal-month" id="mlbl" onclick="toggleMonthPicker()">
+        <span id="mlbl-text"></span>
+        <span class="cal-month-arrow" id="mp-arrow">▾</span>
+      </div>
       <div class="cal-nav">
-        <button class="nav-btn" onclick="cm(-1)">&#8249;</button>
-        <button class="nav-btn" onclick="cm(1)">&#8250;</button>
+        <button class="today-btn" onclick="goToday()">Hoy</button>
+        <button class="nav-btn" onclick="cw(-1)">&#8249;</button>
+        <button class="nav-btn" onclick="cw(1)">&#8250;</button>
       </div>
     </div>
-    <div class="weekdays" id="weekdays"></div>
-    <div class="days-grid" id="cgrid"></div>
+    <div class="week-strip" id="week-strip"></div>
+    <div class="month-picker" id="month-picker">
+      <div class="mp-year">
+        <button class="mp-yr-btn" onclick="changeYear(-1)">&#8249;</button>
+        <span class="mp-yr" id="mp-yr"></span>
+        <button class="mp-yr-btn" onclick="changeYear(1)">&#8250;</button>
+      </div>
+      <div class="mp-grid" id="mp-grid"></div>
+    </div>
   </div>
 
   <button class="btn-new" onclick="openModal()">+ Nuevo mensaje</button>
@@ -390,15 +410,18 @@ function renderPanel(d,page){
 
 function changePage(dir){panelPage+=dir;renderPanel(panelDay,panelPage);}
 
-function sd(d){
-  sel=d;panelDay=d;panelPage=0;
-  renderCal();
+function sd(dateObj){
+  sel=dateObj;
+  var d=dateObj.getDate();
+  cy=dateObj.getFullYear(); cmo=dateObj.getMonth();
+  panelDay=d; panelPage=0;
+  renderWeek();
   renderPanel(d,0);
   document.getElementById('panel').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function te(id){exp.has(id)?exp.delete(id):exp.add(id);if(sel)sd(sel);}
-function cp(){sel=null;const p=document.getElementById('panel');p.style.display='none';p.innerHTML='';renderCal();}
-function cm(dir){cmo+=dir;if(cmo>11){cmo=0;cy++;}if(cmo<0){cmo=11;cy--;}sel=null;cp();}
+function cp(){sel=null;const p=document.getElementById('panel');p.style.display='none';p.innerHTML='';renderWeek();}
+// cm() reemplazado por cw() para navegación semanal
 
 // AUTOCOMPLETE
 async function buscarContacto(q){
