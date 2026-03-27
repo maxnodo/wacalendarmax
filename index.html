@@ -674,6 +674,7 @@ async function verificarNotifs(){
   if(sub) document.getElementById('notif-btn').style.borderColor='var(--teal)';
 }
 
+renderWeek(); // render inmediato sin esperar datos
 load();
 setInterval(load,60000);
 verificarNotifs();
