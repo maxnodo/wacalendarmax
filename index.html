@@ -115,6 +115,7 @@ body.light .badge.p{background:rgba(217,119,6,0.1);color:var(--amber)}
 .msg-actions{display:flex;gap:6px;margin-top:5px}
 .act-btn{font-size:10px;padding:3px 10px;border-radius:6px;border:1px solid var(--brd);background:none;color:var(--muted);cursor:pointer;transition:all .15s}
 .act-btn:hover{border-color:var(--teal);color:var(--teal)}
+.act-btn.del:hover{border-color:#f87171;color:#f87171}
 
 /* BOTÓN NUEVO */
 .btn-new{width:100%;background:var(--teal);border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:700;padding:14px;cursor:pointer;transition:opacity .15s;margin-bottom:1rem}
@@ -282,7 +283,7 @@ function sd(d){
       +'<div class="msg-time">'+h+' · '+m.destinatario_numero+'</div>'
       +'<div class="msg-text" id="px-'+m.id+'" style="'+(isE?'display:none':'')+'">'+renderMsgPreview(m.mensaje)+'</div>'
       +'<div class="msg-textf" id="fx-'+m.id+'" style="'+(isE?'display:block':'display:none')+'">'+renderMsgFull(m.mensaje)+'</div>'
-      +'<div class="msg-actions"><button class="act-btn" onclick="te(\''+m.id+'\')">'+(isE?'Ver menos':'Ver más')+'</button></div>'
+      +'<div class="msg-actions"><button class="act-btn" onclick="te(\''+m.id+'\')">'+(isE?'Ver menos':'Ver más')+'</button>'+(m.activo?'<button class="act-btn del" onclick="eliminar(\''+m.id+'\',\''+m.destinatario_nombre+'\',event)">🗑 Eliminar</button>':'')+'</div>'
       +'</div></div>';
   }).join('');
   const trows=dta.map(t=>{
@@ -398,6 +399,16 @@ function showToast(msg,type){const t=document.getElementById('toast');t.textCont
 
 document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('ac-drop').style.display='none';});
 document.getElementById('mwrap').addEventListener('click',e=>{if(e.target===document.getElementById('mwrap'))closeModal();});
+
+// ELIMINAR MENSAJE
+async function eliminar(id, nombre, e) {
+  e.stopPropagation();
+  if (!confirm('¿Eliminar el mensaje pendiente para ' + nombre + '?')) return;
+  const { error } = await db.from('mensajes_programados').delete().eq('id', id);
+  if (error) { showToast('Error al eliminar', 'err'); return; }
+  showToast('Mensaje eliminado', 'ok');
+  await load();
+}
 
 // RENDER MENSAJE CON PREVIEW DE IMAGEN
 function extractImageUrl(text) {
