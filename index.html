@@ -121,6 +121,23 @@ body.light .badge.p{background:rgba(217,119,6,0.1);color:var(--amber)}
 .pag-btn:hover:not(:disabled){border-color:var(--teal);color:var(--teal)}
 .pag-btn:disabled{opacity:.3;cursor:not-allowed}
 .pag-info{font-size:11px;color:var(--muted)}
+.attach-zone{border:2px dashed var(--brd);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;transition:border-color .15s;position:relative}
+.attach-zone:hover{border-color:var(--teal)}
+.attach-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.attach-zone .az-icon{font-size:24px;margin-bottom:4px}
+.attach-zone .az-label{font-size:12px;color:var(--muted)}
+.attach-zone .az-types{font-size:10px;color:var(--muted);margin-top:2px;opacity:.7}
+.attach-preview{display:none;border-radius:12px;overflow:hidden;border:1px solid var(--brd);margin-top:6px;position:relative}
+.attach-preview img{width:100%;max-height:140px;object-fit:cover;display:block}
+.attach-preview .ap-info{padding:8px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--surf)}
+.attach-preview .ap-name{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.attach-preview .ap-size{font-size:10px;color:var(--muted)}
+.attach-preview .ap-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 4px}
+.attach-preview .ap-remove:hover{color:#f87171}
+.attach-progress{display:none;margin-top:6px}
+.ap-bar{height:4px;background:var(--brd);border-radius:2px;overflow:hidden}
+.ap-fill{height:100%;background:var(--teal);width:0%;transition:width .2s;border-radius:2px}
+.ap-text{font-size:10px;color:var(--muted);text-align:center;margin-top:3px}
 
 /* TARJETAS DE COLOR */
 .msg-row{position:relative;overflow:hidden}
@@ -237,7 +254,28 @@ body.light .btn-save{color:#0f172a}
       </label>
       <input id="fnum" placeholder="Se completa automáticamente" readonly style="background:var(--surf);color:var(--muted)">
     </div>
-    <div class="fr"><label>Mensaje</label><textarea id="fmsg" placeholder="Escribí el mensaje..."></textarea></div>
+    <div class="fr">
+      <label>Adjunto (opcional)</label>
+      <div class="attach-zone" id="attach-zone">
+        <input type="file" id="ffile" accept="image/*,video/*,.pdf,.doc,.docx" onchange="onFileSelect(this)">
+        <div class="az-icon">📎</div>
+        <div class="az-label">Tocá para adjuntar un archivo</div>
+        <div class="az-types">Imágenes · Videos · PDF · Word</div>
+      </div>
+      <div class="attach-preview" id="attach-preview">
+        <img id="ap-img" src="" alt="" style="display:none">
+        <div class="ap-info">
+          <span class="ap-name" id="ap-name"></span>
+          <span class="ap-size" id="ap-size"></span>
+          <button class="ap-remove" onclick="removeFile()" type="button">×</button>
+        </div>
+      </div>
+      <div class="attach-progress" id="attach-progress">
+        <div class="ap-bar"><div class="ap-fill" id="ap-fill"></div></div>
+        <div class="ap-text" id="ap-text">Subiendo...</div>
+      </div>
+    </div>
+    <div class="fr"><label>Mensaje</label><textarea id="fmsg" placeholder="Escribí el mensaje... (opcional si hay adjunto)"></textarea></div>
     <div class="fr"><label>Fecha y hora (Madrid)</label><input type="datetime-local" id="fdt"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
@@ -434,8 +472,77 @@ function resetFormulario(){
   if(btnV&&btnV.textContent==='Buscador')btnV.remove();
 }
 
+// MANEJO DE ARCHIVOS
+var selectedFile=null, uploadedUrl=null;
+
+function onFileSelect(input){
+  var file=input.files[0];
+  if(!file) return;
+  selectedFile=file;
+  uploadedUrl=null;
+  // Mostrar preview
+  var preview=document.getElementById('attach-preview');
+  var img=document.getElementById('ap-img');
+  document.getElementById('ap-name').textContent=file.name;
+  document.getElementById('ap-size').textContent=formatSize(file.size);
+  if(file.type.startsWith('image/')){
+    var reader=new FileReader();
+    reader.onload=function(e){img.src=e.target.result;img.style.display='block';};
+    reader.readAsDataURL(file);
+  } else {
+    img.style.display='none';
+  }
+  preview.style.display='block';
+  document.getElementById('attach-zone').style.display='none';
+}
+
+function removeFile(){
+  selectedFile=null;uploadedUrl=null;
+  document.getElementById('ffile').value='';
+  document.getElementById('attach-preview').style.display='none';
+  document.getElementById('attach-zone').style.display='block';
+  document.getElementById('attach-progress').style.display='none';
+  document.getElementById('ap-fill').style.width='0%';
+}
+
+function formatSize(bytes){
+  if(bytes<1024) return bytes+'B';
+  if(bytes<1048576) return (bytes/1024).toFixed(1)+'KB';
+  return (bytes/1048576).toFixed(1)+'MB';
+}
+
+async function uploadFile(){
+  if(!selectedFile) return null;
+  var progress=document.getElementById('attach-progress');
+  var fill=document.getElementById('ap-fill');
+  var apText=document.getElementById('ap-text');
+  progress.style.display='block';
+  fill.style.width='20%';
+  apText.textContent='Subiendo '+selectedFile.name+'...';
+  try{
+    var fd=new FormData();
+    fd.append('file',selectedFile,selectedFile.name);
+    fill.style.width='50%';
+    var res=await fetch(SB_URL+'/functions/v1/upload-media',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+SB_KEY},
+      body:fd
+    });
+    fill.style.width='90%';
+    var data=await res.json();
+    if(!data.ok) throw new Error(data.error||'Error al subir');
+    fill.style.width='100%';
+    apText.textContent='✓ Subido correctamente';
+    return data.url;
+  }catch(e){
+    progress.style.display='none';
+    throw e;
+  }
+}
+
 function openModal(){
   resetFormulario();
+  removeFile();
   document.getElementById('fmsg').value='';
   const now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
   document.getElementById('fdt').value=now.toISOString().slice(0,16);
@@ -444,20 +551,31 @@ function openModal(){
 function closeModal(){document.getElementById('mwrap').style.display='none';document.getElementById('ac-drop').style.display='none';}
 
 async function guardar(){
-  const n=document.getElementById('fn').value.trim();
-  const num=document.getElementById('fnum').value.trim().replace(/\D/g,'');
-  const msg=document.getElementById('fmsg').value.trim();
-  const dt=document.getElementById('fdt').value;
-  if(!n||!num||!msg||!dt){showToast('Completá todos los campos','err');return;}
-  const btn=document.getElementById('bsv');btn.disabled=true;btn.textContent='Guardando...';
-  const {error}=await db.from('mensajes_programados').insert({
-    destinatario_nombre:n,destinatario_numero:num,mensaje:msg,
-    cron_expresion:'* * * * *',una_sola_vez:true,
-    proximo_envio:new Date(dt).toISOString(),activo:true
-  });
+  var n=document.getElementById('fn').value.trim();
+  var num=document.getElementById('fnum').value.trim().replace(/\D/g,'');
+  var msg=document.getElementById('fmsg').value.trim();
+  var dt=document.getElementById('fdt').value;
+  if(!n||!num||!dt){showToast('Completá destinatario, número y fecha','err');return;}
+  if(!msg&&!selectedFile){showToast('Escribí un mensaje o adjuntá un archivo','err');return;}
+  var btn=document.getElementById('bsv');btn.disabled=true;btn.textContent='Guardando...';
+  try{
+    var finalMsg=msg;
+    if(selectedFile){
+      btn.textContent='Subiendo archivo...';
+      var url=await uploadFile();
+      finalMsg=msg?(msg+'\n'+url):url;
+    }
+    var res=await db.from('mensajes_programados').insert({
+      destinatario_nombre:n,destinatario_numero:num,mensaje:finalMsg,
+      cron_expresion:'* * * * *',una_sola_vez:true,
+      proximo_envio:new Date(dt).toISOString(),activo:true
+    });
+    if(res.error) throw res.error;
+    showToast('Mensaje programado!','ok');closeModal();await load();
+  }catch(e){
+    showToast('Error: '+e.message,'err');
+  }
   btn.disabled=false;btn.textContent='Guardar';
-  if(error){showToast('Error: '+error.message,'err');return;}
-  showToast('Mensaje programado!','ok');closeModal();await load();
 }
 
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
