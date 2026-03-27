@@ -536,7 +536,7 @@ function renderAgenda(){
         +'<div class="ag-num">+'+c.numero+(c.empresa?' · '+c.empresa:'')+'</div></div>'
         +'<div class="ag-right">'
         +(pend?'<span class="ag-badge">'+pend+' pendiente'+(pend!==1?'s':'')+'</span>':'')
-        +'<button class="ag-star" onclick="toggleFav(\''+c.id+'\','+c.favorito+',event)">'+(c.favorito?'★':'☆')+'</button>'
+        +'<button class="ag-star" data-id="'+c.id+'" data-fav="'+c.favorito+'" onclick="toggleFavBtn(this,event)">'+(c.favorito?'★':'☆')+'</button>'
         +'</div></div>';
       if(i<groups[l].length-1) html+='<div class="ag-div"></div>';
     });
