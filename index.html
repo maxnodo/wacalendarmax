@@ -588,7 +588,9 @@ function openModal(){
   resetFormulario();removeFile();
   document.getElementById('fmsg').value='';
   var now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
-  document.getElementById('fdt').value=now.toISOString().slice(0,16);
+  var nowStr=now.toISOString().slice(0,16);
+  document.getElementById('fdt').value=nowStr;
+  document.getElementById('fdt').min=nowStr;
   document.getElementById('mwrap').style.display='flex';
 }
 function closeModal(){document.getElementById('mwrap').style.display='none';document.getElementById('ac-drop').style.display='none';}
@@ -599,6 +601,7 @@ async function guardar(){
   var msg=document.getElementById('fmsg').value.trim();
   var dt=document.getElementById('fdt').value;
   if(!n||!num||!dt){showToast('Completá destinatario, número y fecha','err');return;}
+  if(new Date(dt)<new Date()){showToast('No podés agendar en el pasado','err');return;}
   if(!msg&&!selectedFile){showToast('Escribí un mensaje o adjuntá un archivo','err');return;}
   var btn=document.getElementById('bsv');btn.disabled=true;btn.textContent='Guardando...';
   try{
