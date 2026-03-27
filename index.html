@@ -268,45 +268,72 @@ function renderCal(){
   document.getElementById('cgrid').innerHTML=h;
 }
 
-function sd(d){
-  sel=d;
-  renderCal();
-  const dm=fd(cy,cmo,d),dta=fdt(cy,cmo,d);
-  const MS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  const total=dm.length+dta.length;
-  if(!total){
-    const p=document.getElementById('panel');
-    p.style.display='none';p.innerHTML='';
-    return;
-  }
-  const mrows=dm.map(m=>{
-    const h=new Date(m.proximo_envio).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Madrid'});
-    const ini=m.destinatario_nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-    const isE=exp.has(m.id);
-    return '<div class="msg-row"><div class="av">'+ini+'</div><div class="msg-body">'
-      +'<div class="msg-top"><span class="msg-name">'+m.destinatario_nombre+'</span><span class="badge '+(m.activo?'p':'e')+'">'+(m.activo?'pendiente':'enviado')+'</span></div>'
-      +'<div class="msg-time">'+h+' · '+m.destinatario_numero+'</div>'
-      +'<div class="msg-text" id="px-'+m.id+'" style="'+(isE?'display:none':'')+'">'+renderMsgPreview(m.mensaje)+'</div>'
-      +'<div class="msg-textf" id="fx-'+m.id+'" style="'+(isE?'display:block':'display:none')+'">'+renderMsgFull(m.mensaje)+'</div>'
-      +'<div class="msg-actions"><button class="act-btn" onclick="te(\''+m.id+'\')">'+(isE?'Ver menos':'Ver más')+'</button>'+(m.activo?'<button class="act-btn del" onclick="eliminar(\''+m.id+'\',\''+m.destinatario_nombre+'\',event)">🗑 Eliminar</button>':'')+'</div>'
-      +'</div></div>';
-  }).join('');
-  const trows=dta.map(t=>{
-    const h=new Date(t.proximo_envio).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Madrid'});
-    const ini=(t.destinatario_nombre||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-    return '<div class="msg-row"><div class="av t">'+ini+'</div><div class="msg-body">'
-      +'<div class="msg-top"><span class="msg-name">'+t.destinatario_nombre+'</span><span class="badge t">tarea</span></div>'
-      +'<div class="msg-time">'+h+' · '+(t.nombre||'')+'</div>'
-      +'<div class="msg-text">'+(t.descripcion||'').replace(/\n/g,' ')+'</div>'
-      +'</div></div>';
-  }).join('');
-  const panel=document.getElementById('panel');
-  panel.style.display='block';
-  panel.innerHTML='<div class="panel-header"><div class="panel-title">'+d+' '+MS[cmo]+' · '+total+' elemento'+(total!==1?'s':'')+'</div>'
-    +'<button class="panel-close" onclick="cp()">×</button></div>'+mrows+trows;
-  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+const PAGE_SIZE=3;
+let panelPage=0,panelDay=null;
+
+function msgRow(m){
+  const h=new Date(m.proximo_envio).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Madrid'});
+  const ini=m.destinatario_nombre.split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+  const isE=exp.has(m.id);
+  var html='<div class="msg-row"><div class="av">'+ini+'</div><div class="msg-body">';
+  html+='<div class="msg-top"><span class="msg-name">'+m.destinatario_nombre+'</span>';
+  html+='<span class="badge '+(m.activo?'p':'e')+'">'+(m.activo?'pendiente':'enviado')+'</span></div>';
+  html+='<div class="msg-time">'+h+' · '+m.destinatario_numero+'</div>';
+  html+='<div class="msg-text" id="px-'+m.id+'" style="'+(isE?'display:none':'')+'">'+renderMsgPreview(m.mensaje)+'</div>';
+  html+='<div class="msg-textf" id="fx-'+m.id+'" style="'+(isE?'display:block':'display:none')+'">'+renderMsgFull(m.mensaje)+'</div>';
+  html+='<div class="msg-actions"><button class="act-btn" onclick="te(\''+m.id+'\')">'+(isE?'Ver menos':'Ver más')+'</button>';
+  if(m.activo) html+='<button class="act-btn del" onclick="eliminar(\''+m.id+'\',\''+m.destinatario_nombre.replace(/'/g,"\\'")+"',event)\">🗑 Eliminar</button>";
+  html+='</div></div></div>';
+  return html;
 }
 
+function tareaRow(t){
+  var h=new Date(t.proximo_envio).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Madrid'});
+  var ini=(t.destinatario_nombre||'?').split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+  var html='<div class="msg-row"><div class="av t">'+ini+'</div><div class="msg-body">';
+  html+='<div class="msg-top"><span class="msg-name">'+t.destinatario_nombre+'</span><span class="badge t">tarea</span></div>';
+  html+='<div class="msg-time">'+h+' · '+(t.nombre||'')+'</div>';
+  html+='<div class="msg-text">'+(t.descripcion||'').replace(/\n/g,' ')+'</div>';
+  html+='</div></div>';
+  return html;
+}
+
+function renderPanel(d,page){
+  var dm=fd(cy,cmo,d),dta=fdt(cy,cmo,d);
+  var MS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var all=dm.map(function(m){return Object.assign({},m,{_t:'msg'});}).concat(
+    dta.map(function(t){return Object.assign({},t,{_t:'tarea'});})
+  );
+  var total=all.length;
+  if(!total){var p=document.getElementById('panel');p.style.display='none';p.innerHTML='';return;}
+  var start=page*PAGE_SIZE;
+  var slice=all.slice(start,start+PAGE_SIZE);
+  var rows=slice.map(function(x){return x._t==='msg'?msgRow(x):tareaRow(x);}).join('');
+  var hasPrev=page>0,hasNext=start+PAGE_SIZE<total;
+  var pags=Math.ceil(total/PAGE_SIZE);
+  var paginacion='';
+  if(total>PAGE_SIZE){
+    paginacion='<div class="pag-row">'
+      +'<button class="pag-btn" onclick="changePage(-1)" '+(hasPrev?'':'disabled')+'>← Ant</button>'
+      +'<span class="pag-info">'+(start+1)+'-'+Math.min(start+PAGE_SIZE,total)+' de '+total+'</span>'
+      +'<button class="pag-btn" onclick="changePage(1)" '+(hasNext?'':'disabled')+'>Sig →</button>'
+      +'</div>';
+  }
+  var titulo=d+' '+MS[cmo]+(pags>1?' · '+( page+1)+'/'+pags:'');
+  var panel=document.getElementById('panel');
+  panel.style.display='block';
+  panel.innerHTML='<div class="panel-header"><div class="panel-title">'+titulo+'</div>'
+    +'<button class="panel-close" onclick="cp()">×</button></div>'+rows+paginacion;
+}
+
+function changePage(dir){panelPage+=dir;renderPanel(panelDay,panelPage);}
+
+function sd(d){
+  sel=d;panelDay=d;panelPage=0;
+  renderCal();
+  renderPanel(d,0);
+  document.getElementById('panel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 function te(id){exp.has(id)?exp.delete(id):exp.add(id);if(sel)sd(sel);}
 function cp(){sel=null;const p=document.getElementById('panel');p.style.display='none';p.innerHTML='';renderCal();}
 function cm(dir){cmo+=dir;if(cmo>11){cmo=0;cy++;}if(cmo<0){cmo=11;cy--;}sel=null;cp();}
