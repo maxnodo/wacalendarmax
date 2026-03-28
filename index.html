@@ -101,55 +101,6 @@ body.light .btn-new{color:#0f172a}
 .tc-purple{background:#D4C5F0}.tc-blue{background:#BED3F0}.tc-green{background:#C2E0CA}
 .tc-peach{background:#F0D0C0}.tc-sand{background:#EDE0C4}.tc-sky{background:#C0DAE8}
 
-/* AGENDA */
-.agenda-wrap{background:var(--card);border-radius:20px;overflow:hidden;margin-bottom:1rem}
-.ag-head{background:var(--surf);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd)}
-.ag-title{font-size:14px;font-weight:700;color:var(--text)}
-.ag-sub{font-size:10px;color:var(--muted);margin-top:1px}
-.ag-back{font-size:12px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;transition:background .15s;color:var(--muted)}
-.ag-back:hover{background:var(--brd)}
-.ag-search{margin:10px 12px 6px;background:var(--surf);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:8px;border:1px solid var(--brd)}
-.ag-search input{background:none;border:none;outline:none;font-size:11px;color:var(--text);width:100%;font-family:inherit}
-.ag-search input::placeholder{color:var(--muted)}
-
-/* FAVORITOS SCROLL */
-.ag-favs-section{border-bottom:1px solid var(--brd);padding-bottom:8px}
-.ag-favs-label{font-size:9px;font-weight:700;color:var(--teal);padding:10px 16px 8px;text-transform:uppercase;letter-spacing:.08em}
-.ag-favs-row{display:flex;gap:14px;padding:0 16px 4px;overflow-x:auto}
-.ag-favs-row::-webkit-scrollbar{display:none}
-.fav-bubble{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0}
-.fav-av-wrap{position:relative}
-.fav-av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;transition:transform .1s}
-.fav-bubble:hover .fav-av{transform:scale(1.05)}
-.fav-online{position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--teal);border:2px solid var(--card)}
-.fav-name{font-size:9px;color:var(--muted);text-align:center;max-width:52px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fav-pend{position:absolute;top:-2px;right:-2px;background:var(--amber);color:#000;font-size:8px;font-weight:700;padding:1px 4px;border-radius:8px;min-width:14px;text-align:center}
-
-/* LISTA TODOS */
-.ag-divider{height:1px;background:var(--brd);margin:0}
-.ag-all-label{font-size:9px;font-weight:700;color:var(--muted);padding:8px 16px 4px;text-transform:uppercase;letter-spacing:.08em}
-.ag-sec{font-size:9px;font-weight:700;color:var(--teal);padding:5px 16px 2px;letter-spacing:.08em;text-transform:uppercase}
-.ag-row{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;transition:background .1s}
-.ag-row:hover{background:var(--surf)}
-.ag-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.ag-info{flex:1;min-width:0}
-.ag-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ag-num{font-size:10px;color:var(--muted)}
-.ag-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.ag-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:600;background:rgba(251,191,36,0.12);color:var(--amber)}
-.ag-star{font-size:13px;cursor:pointer;border:none;background:none;padding:0;transition:transform .1s;line-height:1}
-.ag-star:hover{transform:scale(1.2)}
-.ag-div{height:1px;background:var(--brd);margin:0 16px}
-.ag-empty{padding:2rem;text-align:center;color:var(--muted);font-size:13px}
-.ag-fab{margin:10px 12px 12px;background:var(--teal);border:none;border-radius:12px;color:#fff;font-size:12px;font-weight:700;padding:10px;cursor:pointer;width:calc(100% - 24px);display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s}
-body.light .ag-fab{color:#0f172a}
-.ag-fab:hover{opacity:.85}
-
-/* TABS — ahora solo para filtrar la lista */
-.ag-tabs{display:flex;gap:6px;padding:4px 12px 8px}
-.ag-tab{font-size:10px;font-weight:600;padding:4px 12px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:none;color:var(--muted);transition:all .15s}
-.ag-tab.active{background:var(--teal-bg);color:var(--teal);border-color:rgba(45,212,176,0.2)}
-
 /* MODALES */
 .modal-wrap{display:none;align-items:flex-start;justify-content:center;padding:1.5rem 1rem;background:rgba(0,0,0,.65);position:fixed;inset:0;z-index:200;overflow-y:auto}
 .modal{background:var(--card);border-radius:20px;width:100%;max-width:440px;padding:1.5rem}
@@ -241,38 +192,7 @@ body.light .btn-save{color:#0f172a}
   <!-- TIMELINE -->
   <div id="tl-wrap" style="display:none" class="tl-wrap"></div>
 
-  <!-- AGENDA CONTACTOS -->
-  <div id="agenda-view" style="display:none">
-    <div class="agenda-wrap">
-      <div class="ag-head">
-        <div>
-          <div class="ag-title">Contactos</div>
-          <div class="ag-sub" id="ag-sub">Cargando...</div>
-        </div>
-        <button class="ag-back" onclick="closeAgenda()">← Volver</button>
-      </div>
-      <div class="ag-search">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;color:var(--muted)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input id="ag-q" placeholder="Buscar por nombre o número..." oninput="filtrarAg(this.value)">
-      </div>
-      <div class="ag-tabs">
-        <button class="ag-tab active" onclick="setTab(this,'todos')">Todos</button>
-        <button class="ag-tab" onclick="setTab(this,'favs')">★ Favoritos</button>
-        <button class="ag-tab" onclick="setTab(this,'pending')">⏱ Con pendientes</button>
-      </div>
-      <!-- FAVORITOS SCROLL HORIZONTAL -->
-      <div class="ag-favs-section" id="ag-favs-section" style="display:none">
-        <div class="ag-favs-label">Favoritos</div>
-        <div class="ag-favs-row" id="ag-favs-row"></div>
-        <div class="ag-divider"></div>
-        <div class="ag-all-label">Todos</div>
-      </div>
-      <div id="ag-list"></div>
-      <button class="ag-fab" onclick="openMC()">+ Nuevo contacto</button>
-    </div>
-  </div>
-
-  <!-- BOTÓN NUEVO MENSAJE -->
+    <!-- BOTÓN NUEVO MENSAJE -->
   <button class="btn-new" id="btn-new" onclick="openModal()">+ Nuevo mensaje</button>
 </div>
 
@@ -320,21 +240,6 @@ body.light .btn-save{color:#0f172a}
   </div>
 </div>
 
-<!-- MODAL CONTACTO -->
-<div class="modal-wrap" id="mc-wrap">
-  <div class="modal">
-    <div class="modal-title">Nuevo contacto</div>
-    <div class="fr"><label>Nombre</label><input id="mc-nombre" placeholder="Nombre completo"></div>
-    <div class="fr"><label>Número (con código de país)</label><input id="mc-numero" placeholder="Ej: 5493434061043" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
-    <div class="fr"><label>Empresa (opcional)</label><input id="mc-empresa" placeholder="Nombre de la empresa"></div>
-    <div class="fr"><label>Notas (opcional)</label><textarea id="mc-notas" placeholder="Notas sobre este contacto..."></textarea></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeMC()">Cancelar</button>
-      <button class="btn-save" id="mc-save" onclick="guardarContacto()">Guardar</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -347,11 +252,8 @@ var MN=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septi
 var MNC=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 var WD=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 var TC=['tc-purple','tc-blue','tc-green','tc-peach','tc-sand','tc-sky'];
-var AG_COLORS=['teal','purple','amber','pink','blue'];
-var AG_BG={teal:'rgba(45,212,176,0.15)',purple:'rgba(167,139,250,0.15)',amber:'rgba(251,191,36,0.15)',pink:'rgba(244,114,182,0.15)',blue:'rgba(96,165,250,0.15)'};
-var AG_FG={teal:'#2dd4b0',purple:'#a78bfa',amber:'#fbbf24',pink:'#f472b6',blue:'#60a5fa'};
 
-var msgs=[],tareas=[],calData=[],contactos=[],cwd=new Date(),sel=null,exp=new Set(),acTimer=null,mpOpen=false,mpYear=new Date().getFullYear(),agTab='todos',agQuery='';
+var msgs=[],tareas=[],calData=[],cwd=new Date(),sel=null,exp=new Set(),acTimer=null,mpOpen=false,mpYear=new Date().getFullYear();
 
 function hsh(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return Math.abs(h);}
 function getMon(date){var d=new Date(date),day=d.getDay(),diff=day===0?-6:1-day;d.setDate(d.getDate()+diff);d.setHours(0,0,0,0);return d;}
@@ -361,7 +263,6 @@ function imgUrl(text){var m=text&&text.match(/https?:\/\/[^\s]+(\.(?:jpg|jpeg|pn
 function fcd(y,m,d){return calData.filter(function(x){return x.y===y&&x.m===m&&x.d===d;});}
 function fd(y,m,d){return msgs.filter(function(x){var dt=new Date(x.proximo_envio);return dt.getUTCFullYear()===y&&dt.getUTCMonth()===m&&dt.getUTCDate()===d;});}
 function fdt(y,m,d){return tareas.filter(function(x){var dt=new Date(x.proximo_envio);return dt.getUTCFullYear()===y&&dt.getUTCMonth()===m&&dt.getUTCDate()===d;});}
-function pendPorNum(num){return msgs.filter(function(m){return m.destinatario_numero===num&&m.activo;}).length;}
 
 async function load(){
   try{
@@ -505,99 +406,6 @@ async function eliminar(id,nombre,e){
   showToast('Mensaje eliminado','ok');await load();
 }
 
-// AGENDA CONTACTOS
-async function loadContactos(){
-  var res=await db.from('contactos').select('*').order('nombre');
-  if(res.data) contactos=res.data;
-  // Reset completo del DOM de favoritos antes de re-render
-  var fs=document.getElementById('ag-favs-section');
-  if(fs) fs.style.display='none';
-  renderAgenda();
-}
-
-function renderAgenda(){
-  var lista=contactos.filter(function(c){
-    var q=agQuery.toLowerCase();
-    var mQ=!q||c.nombre.toLowerCase().includes(q)||(c.numero&&c.numero.includes(q));
-    var mT=agTab==='todos'||(agTab==='favs'&&c.favorito)||(agTab==='pending'&&pendPorNum(c.numero)>0);
-    return mQ&&mT;
-  });
-  document.getElementById('ag-sub').textContent=contactos.length+' contactos · '+contactos.filter(function(c){return c.favorito;}).length+' favoritos';
-  if(!lista.length){document.getElementById('ag-list').innerHTML='<div class="ag-empty">Sin contactos encontrados</div>';return;}
-  var groups={};
-  lista.forEach(function(c){var l=c.nombre[0].toUpperCase();if(!groups[l])groups[l]=[];groups[l].push(c);});
-  var html='';
-  Object.keys(groups).sort().forEach(function(l){
-    html+='<div class="ag-sec">'+l+'</div>';
-    groups[l].forEach(function(c,i){
-      var col=agColor(c.numero||c.nombre);
-      var ini=c.nombre.split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
-      var pend=pendPorNum(c.numero);
-      html+='<div class="ag-row">'
-        +'<div class="ag-av" style="background:'+AG_BG[col]+';color:'+AG_FG[col]+'">'+ini+'</div>'
-        +'<div class="ag-info"><div class="ag-name">'+c.nombre+'</div>'
-        +'<div class="ag-num">+'+c.numero+(c.empresa?' · '+c.empresa:'')+'</div></div>'
-        +'<div class="ag-right">'
-        +(pend?'<span class="ag-badge">'+pend+' pendiente'+(pend!==1?'s':'')+'</span>':'')
-        +'<button class="ag-star" data-id="'+c.id+'" data-fav="'+c.favorito+'">'+(c.favorito?'★':'☆')+'</button>'
-        +'</div></div>';
-      if(i<groups[l].length-1) html+='<div class="ag-div"></div>';
-    });
-  });
-  document.getElementById('ag-list').innerHTML=html;
-}
-
-function filtrarAg(q){agQuery=q;renderAgenda();}
-function setTab(btn,tab){
-  agTab=tab;
-  document.querySelectorAll('.ag-tab').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
-  renderAgenda();
-}
-
-async function toggleFav(id,actual,e){
-  if(e) e.stopPropagation();
-  await db.from('contactos').update({favorito:!actual}).eq('id',id);
-  await loadContactos();
-}
-
-
-
-function openAgenda(){
-  document.getElementById('agenda-view').style.display='block';
-  document.getElementById('cal-widget').style.display='none';
-  document.getElementById('tl-wrap').style.display='none';
-  document.getElementById('btn-new').style.display='none';
-  document.getElementById('ag-q').value='';agQuery='';agTab='todos';
-  document.querySelectorAll('.ag-tab').forEach(function(b,i){b.classList.toggle('active',i===0);});
-  loadContactos();
-}
-
-function closeAgenda(){
-  document.getElementById('agenda-view').style.display='none';
-  document.getElementById('cal-widget').style.display='block';
-  document.getElementById('btn-new').style.display='block';
-  if(sel) document.getElementById('tl-wrap').style.display='block';
-}
-
-// MODAL CONTACTO
-function openMC(){document.getElementById('mc-wrap').style.display='flex';}
-function closeMC(){document.getElementById('mc-wrap').style.display='none';}
-async function guardarContacto(){
-  var nombre=document.getElementById('mc-nombre').value.trim();
-  var numero=document.getElementById('mc-numero').value.trim();
-  var empresa=document.getElementById('mc-empresa').value.trim();
-  var notas=document.getElementById('mc-notas').value.trim();
-  if(!nombre||!numero){showToast('Nombre y número son obligatorios','err');return;}
-  var btn=document.getElementById('mc-save');btn.disabled=true;btn.textContent='Guardando...';
-  var res=await db.from('contactos').insert({nombre:nombre,numero:numero,empresa:empresa||null,notas:notas||null});
-  btn.disabled=false;btn.textContent='Guardar';
-  if(res.error){showToast('Error: '+res.error.message,'err');return;}
-  showToast('Contacto guardado!','ok');closeMC();
-  ['mc-nombre','mc-numero','mc-empresa','mc-notas'].forEach(function(id){document.getElementById(id).value='';});
-  await loadContactos();
-}
-
 // AUTOCOMPLETE MENSAJES
 async function buscarContacto(q){
   var drop=document.getElementById('ac-drop');
@@ -716,25 +524,9 @@ document.addEventListener('click',function(e){
   if(mpOpen&&!e.target.closest('.cal')){mpOpen=false;document.getElementById('month-picker').classList.remove('open');document.getElementById('mp-arrow').style.transform='';}
 });
 document.getElementById('mwrap').addEventListener('click',function(e){if(e.target===document.getElementById('mwrap'))closeModal();});
-document.getElementById('mc-wrap').addEventListener('click',function(e){if(e.target===document.getElementById('mc-wrap'))closeMC();});
 
-// Event delegation para favoritos - evita CSP inline handlers
-document.addEventListener('click',function(e){
-  var btn=e.target.closest('.ag-star');
-  if(btn){
-    e.stopPropagation();
-    var id=btn.getAttribute('data-id');
-    var favStr=btn.getAttribute('data-fav');
-    var fav=(favStr==='true'||favStr===true);
-    // Actualizar UI inmediatamente sin esperar Supabase
-    btn.textContent=fav?'☆':'★';
-    btn.setAttribute('data-fav',String(!fav));
-    // Luego guardar en Supabase y recargar
-    db.from('contactos').update({favorito:!fav}).eq('id',id).then(function(){
-      loadContactos();
-    });
-  }
-});
+
+
 
 function setTheme(light){document.body.classList.toggle('light',light);document.getElementById('theme-icon').textContent=light?'🌙':'☀️';localStorage.setItem('theme',light?'light':'dark');}
 function toggleTheme(){setTheme(!document.body.classList.contains('light'));}
