@@ -154,7 +154,7 @@ body.light .btn-save{color:#0f172a}
     <div class="top-sep"></div>
     <span class="upd" id="upd">--:--</span>
     <div class="top-sep"></div>
-    <button class="contacts-btn" onclick="openAgenda()">
+    <button class="contacts-btn">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
       Contactos
     </button>
@@ -258,7 +258,6 @@ var msgs=[],tareas=[],calData=[],cwd=new Date(),sel=null,exp=new Set(),acTimer=n
 function hsh(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return Math.abs(h);}
 function getMon(date){var d=new Date(date),day=d.getDay(),diff=day===0?-6:1-day;d.setDate(d.getDate()+diff);d.setHours(0,0,0,0);return d;}
 function cardColor(str){return TC[hsh(str)%TC.length];}
-function agColor(str){return AG_COLORS[hsh(str)%AG_COLORS.length];}
 function imgUrl(text){var m=text&&text.match(/https?:\/\/[^\s]+(\.(?:jpg|jpeg|png|gif|webp)|storage\/v1\/object\/pub[^\s]*)/i);return m?m[0]:null;}
 function fcd(y,m,d){return calData.filter(function(x){return x.y===y&&x.m===m&&x.d===d;});}
 function fd(y,m,d){return msgs.filter(function(x){var dt=new Date(x.proximo_envio);return dt.getUTCFullYear()===y&&dt.getUTCMonth()===m&&dt.getUTCDate()===d;});}
@@ -417,7 +416,7 @@ async function buscarContacto(q){
     drop.innerHTML='<div class="ac-empty">Buscando...</div>';
     try{
       // Buscar primero en agenda propia
-      var locales=contactos.filter(function(c){return c.nombre.toLowerCase().includes(q.toLowerCase())||c.numero.includes(q);});
+      var locales=[];
       var res=await fetch(SB_URL+'/functions/v1/search-contacts',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY},body:JSON.stringify({query:q})});
       var remote=await res.json();
       // Combinar sin duplicados por número
